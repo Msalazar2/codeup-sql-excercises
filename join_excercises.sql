@@ -64,25 +64,55 @@ AND dept_manager.to_date LIKE '9999%'
 ORDER BY dept_name ASC;
 
 -- Find the number of current employees in each department.
-SELECT departments.dept_no, departments.dept_name, COUNT(*) AS num_employees
-FROM departments
-INNER JOIN dept_emp ON departments.dept_no = dept_emp.dept_no
-WHERE dept_emp.to_date LIKE '9999%'
-GROUP BY dept_no
-ORDER BY dept_no ASC;
+SELECT d.dept_no, d.dept_name, COUNT(*) AS num_employees
+FROM employees AS e
+INNER JOIN dept_emp AS de ON de.emp_no = e.emp_no
+INNER JOIN departments AS d ON d.dept_no = de.dept_no
+WHERE de.to_date > CURDATE()
+GROUP BY d.dept_name
+ORDER BY d.dept_no ASC;
 
 -- Which department has the highest average salary? Hint: Use current not historic information.
-SELECT department.dept_name, AVG(salaries.salary) AS average_salary
-FROM employees
-INNER JOIN dept_emp ON employees.emp_no = dept_emp.emp_no
-INNER JOIN departments ON departments.dept_no = dept_emp.dept_no
+SELECT d.dept_name, ROUND(AVG(s.salary)) AS average_salary
+FROM employees AS e
+INNER JOIN dept_emp AS de ON e.emp_no = de.emp_no
+INNER JOIN departments AS d ON d.dept_no = de.dept_no
+INNER JOIN salaries AS s ON s.emp_no = e.emp_no
+WHERE de.to_date > CURDATE()
+AND s.to_date > CURDATE()
+GROUP BY d.dept_name
+ORDER BY average_salary DESC
+LIMIT 1;
+
+-- Who is the highest paid employee in the Marketing department?
+SELECT CONCAT(e.first_name,' ', e.last_name) AS name, s.salary, d.dept_name
+FROM employees AS e
+INNER JOIN dept_emp AS de ON de.emp_no = e.emp_no
+INNER JOIN departments AS d ON d.dept_no = de.dept_no
+INNER JOIN salaries AS s ON s.emp_no = e.emp_no
+WHERE d.dept_name = 'Marketing'
+AND de.to_date > CURDATE()
+AND s.to_date > CURDATE()
+ORDER BY s.salary DESC
+LIMIT 1;
+
+-- Which current department manager has the highest salary?
+
+SELECT departments.dept_name, CONCAT(employees.last_name, ' ', employees.first_name) AS current_managers, salaries.salary
+FROM departments
+INNER JOIN dept_manager ON departments.dept_no = dept_manager.dept_no
+INNER JOIN employees ON dept_manager.emp_no = employees.emp_no
 INNER JOIN salaries ON employees.emp_no = salaries.emp_no
 WHERE salaries.to_date LIKE '9999%'
-AND department.to_date LIKE '9999%'
-GROUP BY department.dept_name
+AND dept_manager.to_date LIKE '9999%'
+ORDER BY salaries.salary DESC
+LIMIT 1;
+
+-- Determine the average salary for each department. Use all salary information and round your results.
+SELECT d.dept_name, ROUND(AVG(s.salary)) AS average_salary
+FROM employees AS e
+INNER JOIN dept_emp AS de ON e.emp_no = de.emp_no
+INNER JOIN departments AS d ON d.dept_no = de.dept_no
+INNER JOIN salaries AS s ON s.emp_no = e.emp_no
+GROUP BY d.dept_name
 ORDER BY average_salary DESC;
-
-
-
-
-
