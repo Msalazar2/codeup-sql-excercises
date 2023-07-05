@@ -8,8 +8,9 @@ WHERE to_date > CURDATE()
 AND employees.emp_no = (
 	SELECT emp_no
 	FROM employees 
-	WHERE emp_no = '101010'
+	WHERE emp_no = 101010
     );
+     
 
 -- Find all the titles ever held by all current employees with the first name Aamod.
 SELECT *
@@ -44,20 +45,62 @@ WHERE emp_no IN (
 	WHERE to_date > CURDATE()
     )
 AND gender = 'F';
-
+# Isamu, Karsten, Leon, Hilary
 -- Find all the employees who currently have a higher salary than the companies overall, historical average salary.
-SELECT AVG(salary) 
+
+SELECT emp_no, salary, (
+	SELECT first_name 
+    FROM employees 
+    WHERE employees.emp_no = salaries.emp_no
+    ) AS emp_name
+FROM salaries
+WHERE salary > (
+	SELECT AVG(salary) 
+    FROM salaries
+    ) 
+AND to_date > CURDATE();
+
+-- How many current salaries are within 1 standard deviation of the current highest salary? (Hint: you can use a built in function to calculate the standard deviation.) What percentage of all salaries is this?
+-- Hint You will likely use multiple subqueries in a variety of ways
+-- Hint It's a good practice to write out all of the small queries that you can. Add a comment above the query showing the number of rows returned. You will use this number (or the query that produced it) in other, larger queries
+
+SELECT MAX(salary)
 FROM salaries
 WHERE to_date > CURDATE();
 
-SELECT emp_no, salary
+SELECT STDDEV(salary)
 FROM salaries
-WHERE salary > (SELECT AVG(salary) FROM salaries);
+WHERE to_date > CURDATE();
 
--- How many current salaries are within 1 standard deviation of the current highest salary? (Hint: you can use a built in function to calculate the standard deviation.) What percentage of all salaries is this?
-SELECT emp_no, STDDEV(salary)
+SELECT COUNT(*)
 FROM salaries
-WHERE salary > (SELECT AVG(salary) FROM salaries);
+WHERE salary > ((
+	SELECT MAX(salary)
+    FROM salaries
+    WHERE to_date > CURDATE()
+) - (
+	SELECT STDDEV(salary)
+    FROM salaries
+    WHERE to_date > CURDATE()
+)) AND to_date > CURDATE();
 
--- Hint You will likely use multiple subqueries in a variety of ways
--- Hint It's a good practice to write out all of the small queries that you can. Add a comment above the query showing the number of rows returned. You will use this number (or the query that produced it) in other, larger queries
+SELECT COUNT(*)
+FROM salaries
+WHERE to_date > CURDATE();
+
+
+SELECT (
+		SELECT COUNT(*)
+		FROM salaries
+		WHERE salary > ((
+			SELECT MAX(salary)
+			FROM salaries
+			WHERE to_date > CURDATE()
+			) - (
+			SELECT STDDEV(salary)
+			FROM salaries
+			WHERE to_date > CURDATE()
+			)) AND to_date > CURDATE()
+		) / (COUNT(*)) * 100 AS percent_emp
+FROM salaries
+WHERE to_date > CURDATE();
