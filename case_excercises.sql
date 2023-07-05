@@ -28,8 +28,8 @@ GROUP BY decade;
 -- What is the current average salary for each of the following department groups: R&D, Sales & Marketing, Prod & QM, Finance & HR, Customer Service?
 USE employees;
 
-SELECT dept_name, salaries.salary,
-   CASE dept_name
+SELECT AVG(salary),
+   CASE 
        WHEN dept_name IN ('research', 'development') THEN 'R&D'
        WHEN dept_name IN ('sales', 'marketing') THEN 'Sales & Marketing'
        WHEN dept_name IN ('Production', 'Quality Management') THEN 'Prod & QM'
@@ -37,7 +37,8 @@ SELECT dept_name, salaries.salary,
    END AS dept_group
 FROM departments
 INNER JOIN dept_emp ON dept_emp.dept_no = departments.dept_no
-INNER JOIN salaries ON salaries.emp_no = dept_emp.emp_no
+INNER JOIN salaries ON salaries.emp_no = dept_emp.emp_no 
+AND salaries.to_date > CURDATE()
 GROUP BY dept_group;
 
 
