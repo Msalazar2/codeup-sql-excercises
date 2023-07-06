@@ -39,6 +39,6 @@ FROM departments
 INNER JOIN dept_emp ON dept_emp.dept_no = departments.dept_no
 INNER JOIN salaries ON salaries.emp_no = dept_emp.emp_no 
 AND salaries.to_date > CURDATE()
-GROUP BY dept_group;
+GROUP BY dept_group; 
 
 
