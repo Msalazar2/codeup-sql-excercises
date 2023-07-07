@@ -67,4 +67,6 @@ ALTER TABLE somerville_2276.zscore_dept_salaries ADD overall_avg FLOAT(10, 2);
 ALTER TABLE somerville_2276.zscore_dept_salaries ADD overall_stddev FLOAT(10, 2);
 ALTER TABLE somerville_2276.zscore_dept_salaries ADD dept_zscore FLOAT(10, 2);
 
-UPDATE somerville_2276.zscore_dept_salaries 
+UPDATE somerville_2276.zscore_dept_salaries SET overall_avg = (SELECT average_salary FROM nikki_meyer.zscore_salaries);
+UPDATE somerville_2276.zscore_dept_salaries SET overall_stddev = (SELECT std_salary FROM somerville_2276.zscore_salaries);
+UPDATE somerville_2276.zscore_dept_salaries SET dept_zscore = (avg_dept_salary - overall_avg)/overall_stddev;
